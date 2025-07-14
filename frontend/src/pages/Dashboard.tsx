@@ -24,6 +24,7 @@ const Dashboard: React.FC = () => {
   const createTaskMutation = useMutation(tasksApi.createTask, {
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks"]);
+      queryClient.invalidateQueries(["allTasks"]);
       setShowTaskForm(false);
     },
   });
@@ -33,6 +34,7 @@ const Dashboard: React.FC = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["tasks"]);
+        queryClient.invalidateQueries(["allTasks"]);
       },
     }
   );
@@ -40,12 +42,14 @@ const Dashboard: React.FC = () => {
   const deleteTaskMutation = useMutation(tasksApi.deleteTask, {
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks"]);
+      queryClient.invalidateQueries(["allTasks"]);
     },
   });
 
   const toggleCompleteMutation = useMutation(tasksApi.toggleComplete, {
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks"]);
+      queryClient.invalidateQueries(["allTasks"]);
     },
   });
 
@@ -97,7 +101,16 @@ const Dashboard: React.FC = () => {
     return date < new Date(now.getFullYear(), now.getMonth(), now.getDate());
   };
 
-  const allTasks = tasksData?.data?.tasks || [];
+  // Fetch all tasks for announcements (ignore pagination/filters)
+  const { data: allTasksData, isLoading: isLoadingAllTasks } = useQuery(
+    ["allTasks"],
+    () => tasksApi.getTasks({ limit: 1000 })
+  );
+
+  // Use paginated/filtered tasks for main display
+  const allTasks = allTasksData?.data?.tasks || [];
+  const paginatedTasks = tasksData?.data?.tasks || [];
+
   const dueTodayTasks = allTasks.filter(
     (t: Task) => t.dueDate && isToday(t.dueDate)
   );
@@ -117,23 +130,45 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Announcements */}
       {dueTodayTasks.length > 0 && (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
-          <strong>Tasks due today:</strong> {dueTodayTasks.length}
-          <ul className="list-disc ml-6 mt-1">
-            {dueTodayTasks.map((task: Task) => (
-              <li key={task.id}>{task.title}</li>
-            ))}
-          </ul>
+        <div className="flex items-start gap-3 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded-lg shadow-sm mb-2">
+          <span className="text-2xl">📅</span>
+          <div>
+            <div className="font-semibold text-yellow-700 mb-1">
+              Tasks due today:{" "}
+              <span className="font-bold">{dueTodayTasks.length}</span>
+            </div>
+            <ul className="list-disc ml-6 mt-1 space-y-1">
+              {dueTodayTasks.map((task: Task) => (
+                <li
+                  key={task.id}
+                  className="hover:underline hover:text-yellow-900 cursor-pointer transition-colors"
+                >
+                  {task.title}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
       {overdueTasks.length > 0 && (
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
-          <strong>Overdue tasks:</strong> {overdueTasks.length}
-          <ul className="list-disc ml-6 mt-1">
-            {overdueTasks.map((task: Task) => (
-              <li key={task.id}>{task.title}</li>
-            ))}
-          </ul>
+        <div className="flex items-start gap-3 bg-red-50 border-l-4 border-red-400 text-red-800 p-4 rounded-lg shadow-sm mb-2">
+          <span className="text-2xl">⚠️</span>
+          <div>
+            <div className="font-semibold text-red-700 mb-1">
+              Overdue tasks:{" "}
+              <span className="font-bold">{overdueTasks.length}</span>
+            </div>
+            <ul className="list-disc ml-6 mt-1 space-y-1">
+              {overdueTasks.map((task: Task) => (
+                <li
+                  key={task.id}
+                  className="hover:underline hover:text-red-900 cursor-pointer transition-colors"
+                >
+                  {task.title}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
 
@@ -158,7 +193,7 @@ const Dashboard: React.FC = () => {
         </div>
       ) : (
         <TaskList
-          tasks={tasksData?.data?.tasks || []}
+          tasks={paginatedTasks}
           pagination={tasksData?.data?.pagination}
           onUpdateTask={handleUpdateTask}
           onDeleteTask={handleDeleteTask}

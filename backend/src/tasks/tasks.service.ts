@@ -19,6 +19,7 @@ export class TasksService {
         ...createTaskDto,
         userId,
         dueDate: createTaskDto.dueDate ?? now,
+        priority: createTaskDto.priority ?? "low",
       },
     });
   }
@@ -59,10 +60,12 @@ export class TasksService {
       "completed",
       "updatedAt",
       "dueDate",
+      "priority",
     ];
     const safeSortBy = validSortFields.includes(sortBy) ? sortBy : "createdAt";
-    if (safeSortBy === "completed") {
-      // Sort by completed, then by createdAt
+    if (safeSortBy === "priority") {
+      orderBy = [{ priority: "desc" }];
+    } else if (safeSortBy === "completed") {
       orderBy = [{ completed: "desc" }, { createdAt: "desc" }];
     } else if (safeSortBy === "title") {
       orderBy = [{ title: "asc" }];
@@ -126,6 +129,7 @@ export class TasksService {
       data: {
         ...updateTaskDto,
         dueDate: updateTaskDto.dueDate ?? task.createdAt,
+        priority: updateTaskDto.priority ?? task.priority,
       },
     });
   }

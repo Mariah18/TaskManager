@@ -15,6 +15,7 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   dueDate?: string;
+  priority: "low" | "medium" | "high";
 }
 
 export interface Pagination {
@@ -44,12 +45,14 @@ export interface CreateTaskData {
   title: string;
   description?: string;
   dueDate?: string;
+  priority?: "low" | "medium" | "high";
 }
 
 export interface UpdateTaskData {
   title?: string;
   description?: string;
   dueDate?: string;
+  priority?: "low" | "medium" | "high";
 }
 
 export interface GetTasksParams {

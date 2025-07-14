@@ -33,6 +33,7 @@ model Task {
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
   dueDate     DateTime?
+  priority    String    @default("low")
 
   @@map("tasks")
   @@index([userId])
