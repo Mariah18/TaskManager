@@ -4,7 +4,7 @@ import { tasksApi } from "../services/api";
 import TaskList from "../components/TaskList";
 import TaskForm from "../components/TaskForm";
 import TaskFilters from "../components/TaskFilters";
-import { GetTasksParams } from "../types";
+import { GetTasksParams, Task } from "../types";
 
 const Dashboard: React.FC = () => {
   const [filters, setFilters] = useState<GetTasksParams>({
@@ -78,6 +78,33 @@ const Dashboard: React.FC = () => {
     setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
   };
 
+  // Helper to check if a date is today
+  const isToday = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    return (
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate()
+    );
+  };
+
+  // Helper to check if a date is overdue
+  const isOverdue = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    // Ignore time, just compare date
+    return date < new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  };
+
+  const allTasks = tasksData?.data?.tasks || [];
+  const dueTodayTasks = allTasks.filter(
+    (t: Task) => t.dueDate && isToday(t.dueDate)
+  );
+  const overdueTasks = allTasks.filter(
+    (t: Task) => t.dueDate && isOverdue(t.dueDate) && !t.completed
+  );
+
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -88,6 +115,28 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Announcements */}
+      {dueTodayTasks.length > 0 && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
+          <strong>Tasks due today:</strong> {dueTodayTasks.length}
+          <ul className="list-disc ml-6 mt-1">
+            {dueTodayTasks.map((task: Task) => (
+              <li key={task.id}>{task.title}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {overdueTasks.length > 0 && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+          <strong>Overdue tasks:</strong> {overdueTasks.length}
+          <ul className="list-disc ml-6 mt-1">
+            {overdueTasks.map((task: Task) => (
+              <li key={task.id}>{task.title}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">My Tasks</h1>

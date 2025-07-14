@@ -67,7 +67,7 @@ export class TasksService {
     } else if (safeSortBy === "title") {
       orderBy = [{ title: "asc" }];
     } else if (safeSortBy === "dueDate") {
-      orderBy = [{ dueDate: "desc" }];
+      orderBy = [{ dueDate: "asc" }];
     } else {
       orderBy = [{ [safeSortBy]: "desc" }];
     }
