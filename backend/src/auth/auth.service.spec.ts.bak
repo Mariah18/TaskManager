@@ -1,0 +1,175 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { JwtService } from '@nestjs/jwt';
+import { UnauthorizedException, ConflictException } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { UsersService } from '../users/users.service';
+import * as bcrypt from 'bcrypt';
+
+describe('AuthService', () => {
+  let service: AuthService;
+  let usersService: UsersService;
+  let jwtService: JwtService;
+
+  const mockUsersService = {
+    findByEmail: jest.fn(),
+    create: jest.fn(),
+  };
+
+  const mockJwtService = {
+    sign: jest.fn(),
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        {
+          provide: UsersService,
+          useValue: mockUsersService,
+        },
+        {
+          provide: JwtService,
+          useValue: mockJwtService,
+        },
+      ],
+    }).compile();
+
+    service = module.get<AuthService>(AuthService);
+    usersService = module.get<UsersService>(UsersService);
+    jwtService = module.get<JwtService>(JwtService);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('validateUser', () => {
+    it('should return user without password when credentials are valid', async () => {
+      const mockUser = {
+        id: '1',
+        email: 'test@example.com',
+        password: 'hashedPassword',
+        name: 'Test User',
+      };
+
+      mockUsersService.findByEmail.mockResolvedValue(mockUser);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(true as any);
+
+      const result = await service.validateUser('test@example.com', 'password');
+
+      expect(result).toEqual({
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+      });
+      expect(mockUsersService.findByEmail).toHaveBeenCalledWith('test@example.com');
+    });
+
+    it('should return null when user does not exist', async () => {
+      mockUsersService.findByEmail.mockResolvedValue(null);
+
+      const result = await service.validateUser('test@example.com', 'password');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when password is incorrect', async () => {
+      const mockUser = {
+        id: '1',
+        email: 'test@example.com',
+        password: 'hashedPassword',
+      };
+
+      mockUsersService.findByEmail.mockResolvedValue(mockUser);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValue(false as any);
+
+      const result = await service.validateUser('test@example.com', 'wrongpassword');
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('login', () => {
+    it('should return access token and user data when login is successful', async () => {
+      const mockUser = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+      };
+
+      const mockToken = 'jwt-token';
+
+      jest.spyOn(service, 'validateUser').mockResolvedValue(mockUser);
+      mockJwtService.sign.mockReturnValue(mockToken);
+
+      const result = await service.login({
+        email: 'test@example.com',
+        password: 'password',
+      });
+
+      expect(result).toEqual({
+        access_token: mockToken,
+        user: mockUser,
+      });
+      expect(mockJwtService.sign).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        sub: '1',
+      });
+    });
+
+    it('should throw UnauthorizedException when credentials are invalid', async () => {
+      jest.spyOn(service, 'validateUser').mockResolvedValue(null);
+
+      await expect(
+        service.login({
+          email: 'test@example.com',
+          password: 'wrongpassword',
+        })
+      ).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('register', () => {
+    it('should create new user and return access token', async () => {
+      const mockUser = {
+        id: '1',
+        email: 'test@example.com',
+        name: 'Test User',
+      };
+
+      const mockToken = 'jwt-token';
+
+      mockUsersService.findByEmail.mockResolvedValue(null);
+      mockUsersService.create.mockResolvedValue(mockUser);
+      mockJwtService.sign.mockReturnValue(mockToken);
+      jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashedPassword' as any);
+
+      const result = await service.register({
+        email: 'test@example.com',
+        password: 'password',
+        name: 'Test User',
+      });
+
+      expect(result).toEqual({
+        access_token: mockToken,
+        user: mockUser,
+      });
+      expect(mockUsersService.create).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'hashedPassword',
+        name: 'Test User',
+      });
+    });
+
+    it('should throw ConflictException when user already exists', async () => {
+      mockUsersService.findByEmail.mockResolvedValue({ id: '1', email: 'test@example.com' });
+
+      await expect(
+        service.register({
+          email: 'test@example.com',
+          password: 'password',
+        })
+      ).rejects.toThrow(ConflictException);
+    });
+  });
+}); 
