@@ -32,6 +32,6 @@ export class GetTasksDto {
   search?: string;
 
   @IsOptional()
-  @IsIn(["title", "createdAt", "completed", "updatedAt"])
+  @IsIn(["title", "createdAt", "completed", "updatedAt", "dueDate"])
   sortBy?: string;
 }

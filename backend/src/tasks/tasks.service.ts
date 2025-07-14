@@ -13,10 +13,12 @@ export class TasksService {
   constructor(private prisma: PrismaService) {}
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
+    const now = new Date();
     return this.prisma.task.create({
       data: {
         ...createTaskDto,
         userId,
+        dueDate: createTaskDto.dueDate ?? now,
       },
     });
   }
@@ -51,13 +53,21 @@ export class TasksService {
 
     // Build orderBy clause with fixed order
     let orderBy: any;
-    const validSortFields = ["title", "createdAt", "completed", "updatedAt"];
+    const validSortFields = [
+      "title",
+      "createdAt",
+      "completed",
+      "updatedAt",
+      "dueDate",
+    ];
     const safeSortBy = validSortFields.includes(sortBy) ? sortBy : "createdAt";
     if (safeSortBy === "completed") {
       // Sort by completed, then by createdAt
       orderBy = [{ completed: "desc" }, { createdAt: "desc" }];
     } else if (safeSortBy === "title") {
       orderBy = [{ title: "asc" }];
+    } else if (safeSortBy === "dueDate") {
+      orderBy = [{ dueDate: "desc" }];
     } else {
       orderBy = [{ [safeSortBy]: "desc" }];
     }
@@ -74,9 +84,14 @@ export class TasksService {
 
     // Case-insensitive sort by title in JS if sorting by title
     if (safeSortBy === "title") {
-      tasks = tasks.sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }));
+      tasks = tasks.sort((a, b) =>
+        a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
+      );
     }
-    console.log("Sorted tasks by title:", tasks.map(t => t.title));
+    console.log(
+      "Sorted tasks by title:",
+      tasks.map((t) => t.title)
+    );
     return {
       tasks,
       pagination: {
@@ -106,10 +121,12 @@ export class TasksService {
 
   async update(id: string, updateTaskDto: UpdateTaskDto, userId: string) {
     const task = await this.findOne(id, userId);
-
     return this.prisma.task.update({
       where: { id },
-      data: updateTaskDto,
+      data: {
+        ...updateTaskDto,
+        dueDate: updateTaskDto.dueDate ?? task.createdAt,
+      },
     });
   }
 

@@ -91,6 +91,7 @@ const TaskFilters: React.FC<TaskFiltersProps> = ({
             <option value="updatedAt">Date Updated</option>
             <option value="title">Title</option>
             <option value="completed">Status</option>
+            <option value="dueDate">Due Date</option>
           </select>
         </div>
       </div>

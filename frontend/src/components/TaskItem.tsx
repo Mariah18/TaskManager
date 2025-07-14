@@ -20,14 +20,24 @@ const TaskItem: React.FC<TaskItemProps> = ({
   const [editData, setEditData] = useState({
     title: task.title,
     description: task.description || "",
+    dueDate: task.dueDate ? task.dueDate.split("T")[0] : "",
   });
+  const [error, setError] = useState("");
 
   const handleEdit = () => {
     setIsEditing(true);
   };
 
   const handleSave = () => {
-    onUpdate(task.id, editData);
+    if (!editData.title.trim() || !editData.dueDate) {
+      setError("Due date is required.");
+      return;
+    }
+    setError("");
+    onUpdate(task.id, {
+      ...editData,
+      dueDate: editData.dueDate,
+    });
     setIsEditing(false);
   };
 
@@ -35,6 +45,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
     setEditData({
       title: task.title,
       description: task.description || "",
+      dueDate: task.dueDate ? task.dueDate.split("T")[0] : "",
     });
     setIsEditing(false);
   };
@@ -56,6 +67,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
     >
       {isEditing ? (
         <div className="space-y-3">
+          {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
           <input
             type="text"
             name="title"
@@ -71,6 +83,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
             rows={3}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
             placeholder="Task description (optional)"
+          />
+          <input
+            type="date"
+            name="dueDate"
+            value={editData.dueDate}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
           />
           <div className="flex space-x-2">
             <button
@@ -117,6 +137,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 }`}
               >
                 {task.description}
+              </p>
+            )}
+            {task.dueDate && (
+              <p className="text-xs text-blue-500 mt-1">
+                Due: {new Date(task.dueDate).toLocaleDateString()}
               </p>
             )}
             <p className="text-xs text-gray-400 mt-2">

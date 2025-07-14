@@ -14,6 +14,7 @@ export interface Task {
   userId: string;
   createdAt: string;
   updatedAt: string;
+  dueDate?: string;
 }
 
 export interface Pagination {
@@ -42,11 +43,13 @@ export interface RegisterData {
 export interface CreateTaskData {
   title: string;
   description?: string;
+  dueDate?: string;
 }
 
 export interface UpdateTaskData {
   title?: string;
   description?: string;
+  dueDate?: string;
 }
 
 export interface GetTasksParams {

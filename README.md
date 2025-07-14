@@ -2,7 +2,7 @@
 
 A full-stack Task Manager web application built with modern technologies, demonstrating SaaS patterns and clean architecture principles.
 
-## 🚀 Features
+## Features
 
 ### Frontend
 
@@ -27,7 +27,7 @@ A full-stack Task Manager web application built with modern technologies, demons
 - **Rate Limiting**: Protection against brute-force attacks
 - **Git**: Version control with GitHub
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 
@@ -51,13 +51,13 @@ A full-stack Task Manager web application built with modern technologies, demons
 - Docker & Docker Compose
 - GitHub Actions (optional)
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Node.js 18+
 - Docker and Docker Compose
 - PostgreSQL (or use Docker)
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Option 1: Using Docker (Recommended)
 
@@ -117,7 +117,7 @@ A full-stack Task Manager web application built with modern technologies, demons
    npm start
    ```
 
-## 🏗️ Architecture
+## Architecture
 
 ### Project Structure
 
@@ -170,7 +170,7 @@ TaskManager/
    - Rate limiting for API protection
    - Input validation and sanitization
 
-## 🧪 Testing
+## Testing
 
 ### Backend Tests
 
@@ -189,7 +189,7 @@ npm test                  # Run tests
 npm run test:coverage     # Coverage report
 ```
 
-## 📊 API Documentation
+## API Documentation
 
 ### Authentication Endpoints
 
@@ -206,7 +206,7 @@ npm run test:coverage     # Coverage report
 - `DELETE /tasks/:id` - Delete task
 - `PATCH /tasks/:id/complete` - Mark task as complete/incomplete
 
-## 🔧 Environment Variables
+## Environment Variables
 
 ### Backend (.env)
 
@@ -223,7 +223,7 @@ PORT=3001
 REACT_APP_API_URL=http://localhost:3001
 ```
 
-## 🚀 Deployment
+## Deployment
 
 ### Docker Deployment
 
@@ -243,7 +243,7 @@ docker-compose up -d --scale backend=3
 - Configure CORS properly
 - Set up SSL/TLS certificates
 
-## 🔮 Future Improvements
+## Future Improvements
 
 1. **Microservices Architecture**
 
@@ -271,7 +271,7 @@ docker-compose up -d --scale backend=3
    - Metrics and analytics
    - Health check endpoints
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -279,10 +279,10 @@ docker-compose up -d --scale backend=3
 4. Add tests for new functionality
 5. Submit a pull request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License.
 
-## 🆘 Support
+## Support
 
 For support and questions, please open an issue in the GitHub repository.

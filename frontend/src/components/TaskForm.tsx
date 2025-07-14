@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 
 interface TaskFormProps {
-  onSubmit: (data: { title: string; description?: string }) => void;
+  onSubmit: (data: {
+    title: string;
+    description?: string;
+    dueDate?: string;
+  }) => void;
   onCancel: () => void;
   loading?: boolean;
 }
@@ -14,7 +18,9 @@ const TaskForm: React.FC<TaskFormProps> = ({
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    dueDate: "",
   });
+  const [error, setError] = useState("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -27,13 +33,17 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.title.trim()) {
-      onSubmit({
-        title: formData.title.trim(),
-        description: formData.description.trim() || undefined,
-      });
-      setFormData({ title: "", description: "" });
+    if (!formData.title.trim() || !formData.dueDate) {
+      setError("Due date is required.");
+      return;
     }
+    setError("");
+    onSubmit({
+      title: formData.title.trim(),
+      description: formData.description.trim() || undefined,
+      dueDate: formData.dueDate,
+    });
+    setFormData({ title: "", description: "", dueDate: "" });
   };
 
   return (
@@ -45,6 +55,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
           </h3>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
             <div>
               <label
                 htmlFor="title"
@@ -79,6 +90,24 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 rows={3}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Enter task description"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="dueDate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Due Date
+              </label>
+              <input
+                type="date"
+                id="dueDate"
+                name="dueDate"
+                value={formData.dueDate}
+                onChange={handleChange}
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
 

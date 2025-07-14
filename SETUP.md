@@ -1,4 +1,4 @@
-# 🚀 Task Manager Setup Guide
+# Task Manager Setup Guide
 
 ## Quick Start (Docker - Recommended)
 
@@ -33,8 +33,6 @@ docker-compose ps
 2. Click "Create a new account"
 3. Fill in your details and register
 4. Start creating tasks!
-
----
 
 ## Manual Setup (Local Development)
 
@@ -101,9 +99,7 @@ REACT_APP_API_URL=http://localhost:3001
 npm start
 ```
 
----
-
-## 🧪 **Testing the Application**
+## Testing the Application
 
 ### Backend Tests
 
@@ -122,9 +118,7 @@ npm test                  # Run tests
 npm run test:coverage     # Coverage report
 ```
 
----
-
-## 🔧 **Database Management**
+## Database Management
 
 ### View Database with Prisma Studio
 
@@ -140,9 +134,7 @@ cd backend
 npx prisma migrate reset
 ```
 
----
-
-## 🐛 **Troubleshooting**
+## Troubleshooting
 
 ### Common Issues:
 
@@ -179,9 +171,7 @@ npx prisma migrate reset
    docker-compose logs frontend
    ```
 
----
-
-## 📊 **API Testing**
+## API Testing
 
 ### Test Authentication
 
@@ -211,9 +201,7 @@ curl -X POST http://localhost:3001/api/tasks \
   -d '{"title":"Test Task","description":"Test description"}'
 ```
 
----
-
-## 🎯 **Next Steps After Setup**
+## Next Steps After Setup
 
 1. **Explore the Application**
 
@@ -238,9 +226,7 @@ curl -X POST http://localhost:3001/api/tasks \
    - Configure a production database
    - Deploy to your preferred hosting platform
 
----
-
-## 🆘 **Need Help?**
+## Need Help?
 
 If you encounter any issues:
 
