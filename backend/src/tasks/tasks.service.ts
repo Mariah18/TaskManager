@@ -91,6 +91,14 @@ export class TasksService {
         a.title.localeCompare(b.title, undefined, { sensitivity: "base" })
       );
     }
+    // Custom sort by priority: high > medium > low
+    if (safeSortBy === "priority") {
+      const priorityOrder = { high: 3, medium: 2, low: 1 };
+      tasks = tasks.sort(
+        (a, b) =>
+          (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
+      );
+    }
     console.log(
       "Sorted tasks by title:",
       tasks.map((t) => t.title)
