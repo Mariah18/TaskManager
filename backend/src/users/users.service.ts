@@ -38,4 +38,18 @@ export class UsersService {
       },
     });
   }
+
+  async update(id: string, updateUserDto: Partial<{ name?: string; email?: string; password?: string }>) {
+    return this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
 } 

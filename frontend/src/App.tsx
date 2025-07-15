@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Layout from "./components/Layout";
+import Profile from "./pages/Profile";
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -47,6 +48,7 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
+      <Route path="/profile" element={<Profile />} />
       <Route path="/" element={<Navigate to="/dashboard" />} />
     </Routes>
   );

@@ -1,5 +1,6 @@
-import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import React from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,11 +20,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 Task Manager
               </h1>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-700">
                 Welcome, {user?.name || user?.email}
               </span>
+              <Link
+                to="/profile"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                Profile
+              </Link>
               <button
                 onClick={logout}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
@@ -43,4 +50,4 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 };
 
-export default Layout; 
+export default Layout;

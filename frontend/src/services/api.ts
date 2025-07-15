@@ -90,6 +90,15 @@ class ApiService {
   async toggleTaskComplete(id: string) {
     return this.api.patch(`/tasks/${id}/complete`);
   }
+
+  // User API
+  async updateProfile(data: {
+    name?: string;
+    email?: string;
+    password?: string;
+  }) {
+    return this.api.patch("/users/me", data);
+  }
 }
 
 export const apiService = new ApiService();
@@ -108,4 +117,8 @@ export const tasksApi = {
   updateTask: apiService.updateTask.bind(apiService),
   deleteTask: apiService.deleteTask.bind(apiService),
   toggleComplete: apiService.toggleTaskComplete.bind(apiService),
+};
+
+export const userApi = {
+  updateProfile: apiService.updateProfile.bind(apiService),
 };
