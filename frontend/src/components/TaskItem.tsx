@@ -53,7 +53,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     setEditData({
       ...editData,
@@ -66,10 +68,10 @@ const TaskItem: React.FC<TaskItemProps> = ({
       className={`flex items-start justify-between bg-white border border-gray-200 rounded-xl p-5 shadow-sm transition-all duration-150 mb-2
         ${
           task.priority === "high"
-            ? "border-l-8 border-red-500"
+            ? "border-l-8 border-red-200"
             : task.priority === "medium"
-            ? "border-l-8 border-yellow-400"
-            : "border-l-8 border-blue-400"
+            ? "border-l-8 border-yellow-200"
+            : "border-l-8 border-blue-200"
         }
         ${task.completed ? "opacity-70" : "hover:shadow-md"}
         hover:bg-gray-50`}
@@ -151,10 +153,10 @@ const TaskItem: React.FC<TaskItemProps> = ({
               <span
                 className={`ml-2 text-xs font-bold uppercase tracking-wide px-2 py-1 rounded ${
                   task.priority === "high"
-                    ? "bg-red-100 text-red-700"
+                    ? "bg-red-50 text-red-700"
                     : task.priority === "medium"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-blue-100 text-blue-700"
+                    ? "bg-yellow-50 text-yellow-700"
+                    : "bg-blue-50 text-blue-700"
                 }`}
               >
                 {task.priority}

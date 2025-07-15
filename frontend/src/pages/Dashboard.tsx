@@ -5,6 +5,8 @@ import TaskList from "../components/TaskList";
 import TaskForm from "../components/TaskForm";
 import TaskFilters from "../components/TaskFilters";
 import { GetTasksParams, Task } from "../types";
+import { toast } from "react-toastify";
+import ConfirmModal from "../components/ConfirmModal";
 
 const Dashboard: React.FC = () => {
   const [filters, setFilters] = useState<GetTasksParams>({
@@ -14,6 +16,7 @@ const Dashboard: React.FC = () => {
   });
   const [showTaskForm, setShowTaskForm] = useState(false);
   const queryClient = useQueryClient();
+  const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
 
   const {
     data: tasksData,
@@ -26,6 +29,10 @@ const Dashboard: React.FC = () => {
       queryClient.invalidateQueries(["tasks"]);
       queryClient.invalidateQueries(["allTasks"]);
       setShowTaskForm(false);
+      toast.success("Task created successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to create task.");
     },
   });
 
@@ -35,6 +42,10 @@ const Dashboard: React.FC = () => {
       onSuccess: () => {
         queryClient.invalidateQueries(["tasks"]);
         queryClient.invalidateQueries(["allTasks"]);
+        toast.success("Task updated successfully!");
+      },
+      onError: () => {
+        toast.error("Failed to update task.");
       },
     }
   );
@@ -43,6 +54,10 @@ const Dashboard: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks"]);
       queryClient.invalidateQueries(["allTasks"]);
+      toast.success("Task deleted successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to delete task.");
     },
   });
 
@@ -50,6 +65,10 @@ const Dashboard: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks"]);
       queryClient.invalidateQueries(["allTasks"]);
+      toast.success("Task completion status updated!");
+    },
+    onError: () => {
+      toast.error("Failed to update completion status.");
     },
   });
 
@@ -65,9 +84,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleDeleteTask = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this task?")) {
-      deleteTaskMutation.mutate(id);
-    }
+    setDeleteTaskId(id);
   };
 
   const handleToggleComplete = (id: string) => {
@@ -128,6 +145,17 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <ConfirmModal
+        open={!!deleteTaskId}
+        onClose={() => setDeleteTaskId(null)}
+        onConfirm={() => {
+          if (deleteTaskId) deleteTaskMutation.mutate(deleteTaskId);
+        }}
+        title="Delete Task"
+        description="Are you sure you want to delete this task? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
       {/* Announcements */}
       {dueTodayTasks.length > 0 && (
         <div className="flex items-start gap-3 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded-lg shadow-sm mb-2">
