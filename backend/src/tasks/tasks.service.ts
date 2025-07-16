@@ -99,10 +99,6 @@ export class TasksService {
           (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
       );
     }
-    console.log(
-      "Sorted tasks by title:",
-      tasks.map((t) => t.title)
-    );
     return {
       tasks,
       pagination: {
@@ -118,7 +114,6 @@ export class TasksService {
     const task = await this.prisma.task.findFirst({
       where: {
         id,
-        userId,
         deletedAt: null,
       },
     });
@@ -126,35 +121,37 @@ export class TasksService {
     if (!task) {
       throw new NotFoundException("Task not found");
     }
-
+    if (task.userId !== userId) {
+      throw new ForbiddenException();
+    }
     return task;
   }
 
   async update(id: string, updateTaskDto: UpdateTaskDto, userId: string) {
-    const task = await this.findOne(id, userId);
+    const task = await this.prisma.task.findUnique({ where: { id } });
+    if (!task) throw new NotFoundException();
+    if (task.userId !== userId) throw new ForbiddenException();
     return this.prisma.task.update({
       where: { id },
-      data: {
-        ...updateTaskDto,
-        dueDate: updateTaskDto.dueDate ?? task.createdAt,
-        priority: updateTaskDto.priority ?? task.priority,
-      },
+      data: updateTaskDto,
     });
   }
 
   async remove(id: string, userId: string) {
-    const task = await this.findOne(id, userId);
-
-    // Soft delete
-    return this.prisma.task.update({
-      where: { id },
-      data: { deletedAt: new Date() },
+    const task = await this.prisma.task.findFirst({
+      where: { id, deletedAt: null },
     });
+    if (!task) throw new NotFoundException();
+    if (task.userId !== userId) throw new ForbiddenException();
+    return this.prisma.task.delete({ where: { id } });
   }
 
   async toggleComplete(id: string, userId: string) {
-    const task = await this.findOne(id, userId);
-
+    const task = await this.prisma.task.findFirst({
+      where: { id, deletedAt: null },
+    });
+    if (!task) throw new NotFoundException();
+    if (task.userId !== userId) throw new ForbiddenException();
     return this.prisma.task.update({
       where: { id },
       data: { completed: !task.completed },

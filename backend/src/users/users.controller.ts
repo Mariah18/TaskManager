@@ -19,6 +19,10 @@ export class UsersController {
   @Patch("me")
   async updateMe(@Body() updateUserDto: UpdateUserDto, @Request() req) {
     const userId = req.user.id;
+    // Reject if no updatable fields are provided
+    if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
+      throw new BadRequestException("No fields provided for update");
+    }
     // If email is being changed, check for uniqueness
     if (updateUserDto.email) {
       const existing = await this.usersService.findByEmail(updateUserDto.email);

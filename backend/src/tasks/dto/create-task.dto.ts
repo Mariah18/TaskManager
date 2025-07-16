@@ -1,4 +1,10 @@
-import { IsString, IsOptional, MinLength, IsIn } from "class-validator";
+import {
+  IsString,
+  IsOptional,
+  MinLength,
+  IsIn,
+  IsDateString,
+} from "class-validator";
 import { Type } from "class-transformer";
 
 export class CreateTaskDto {
@@ -11,8 +17,8 @@ export class CreateTaskDto {
   description?: string;
 
   @IsOptional()
-  @Type(() => Date)
-  dueDate?: Date;
+  @IsDateString({}, { message: "dueDate must be a valid ISO date string" })
+  dueDate?: string;
 
   @IsOptional()
   @IsIn(["low", "medium", "high"])
