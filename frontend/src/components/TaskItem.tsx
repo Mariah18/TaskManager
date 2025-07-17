@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Task } from "../types";
 
+// Props for TaskItem component
 interface TaskItemProps {
   task: Task;
   onUpdate: (id: string, data: any) => void;
@@ -9,6 +10,7 @@ interface TaskItemProps {
   loading?: boolean;
 }
 
+// TaskItem displays a single task with actions for complete, edit, and delete
 const TaskItem: React.FC<TaskItemProps> = ({
   task,
   onUpdate,

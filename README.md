@@ -1,6 +1,6 @@
 # Task Manager SaaS Application
 
-A full-stack Task Manager web application built with modern technologies, demonstrating SaaS patterns and clean architecture principles.
+A full-stack Task Manager web application demonstrating SaaS patterns and architecture principles.
 
 ## Features
 
@@ -9,8 +9,9 @@ A full-stack Task Manager web application built with modern technologies, demons
 - **Authentication**: Sign up and log in with JWT
 - **Task Management**: Full CRUD operations for tasks
 - **Dynamic Task List**: Pagination, filtering, and sorting
-- **Responsive Design**: Modern UI with Tailwind CSS
+- **Responsive Design**: Interactive UI with Tailwind CSS
 - **Real-time Feedback**: Loading indicators and user notifications
+- **Rate Limiting**: 100 requests per minute per client (IP) using @nestjs/throttler
 
 ### Backend
 
@@ -19,12 +20,13 @@ A full-stack Task Manager web application built with modern technologies, demons
 - **Database**: PostgreSQL with Prisma ORM
 - **Validation**: DTO validation with class-validator
 - **Error Handling**: Proper HTTP status codes and error responses
+- **Rate Limiting**: 100 requests per minute per client (IP) using @nestjs/throttler
+- **Redis**: Included in Docker Compose for future rate limiting/caching support
 
 ### DevOps & Infrastructure
 
 - **Docker**: Containerized application for easy deployment
 - **Testing**: Unit and integration tests
-- **Rate Limiting**: Protection against brute-force attacks
 - **Git**: Version control with GitHub
 
 ## Tech Stack
@@ -35,7 +37,7 @@ A full-stack Task Manager web application built with modern technologies, demons
 - Tailwind CSS for styling
 - Axios for API communication
 - React Router for navigation
-- React Query for state management
+- React Query for some global state (main task fetching uses useEffect and local state)
 
 ### Backend
 
@@ -59,7 +61,7 @@ A full-stack Task Manager web application built with modern technologies, demons
 
 ## Quick Start
 
-### Option 1: Using Docker (Recommended)
+### Option 1: Using Docker
 
 1. **Clone the repository**
 
@@ -202,7 +204,7 @@ npm run test:coverage     # Coverage report
 - `GET /tasks` - Get tasks with pagination, filtering, sorting
 - `POST /tasks` - Create new task
 - `GET /tasks/:id` - Get task by ID
-- `PUT /tasks/:id` - Update task
+- `PATCH /tasks/:id` - Update task
 - `DELETE /tasks/:id` - Delete task
 - `PATCH /tasks/:id/complete` - Mark task as complete/incomplete
 
@@ -270,19 +272,3 @@ docker-compose up -d --scale backend=3
    - Error tracking and logging
    - Metrics and analytics
    - Health check endpoints
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For support and questions, please open an issue in the GitHub repository.

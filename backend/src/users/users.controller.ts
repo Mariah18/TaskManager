@@ -11,11 +11,13 @@ import { UsersService } from "./users.service";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcrypt";
 
+// Handles HTTP requests related to user profile management
 @Controller("users")
 @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  // Update the authenticated user's profile (name, email, or password)
   @Patch("me")
   async updateMe(@Body() updateUserDto: UpdateUserDto, @Request() req) {
     const userId = req.user.id;

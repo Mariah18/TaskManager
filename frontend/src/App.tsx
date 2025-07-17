@@ -56,7 +56,8 @@ function AppRoutes() {
   );
 }
 
-function App() {
+// The main App component sets up routing and global providers
+const App: React.FC = () => {
   return (
     <AuthProvider>
       <AppRoutes />
@@ -72,6 +73,6 @@ function App() {
       />
     </AuthProvider>
   );
-}
+};
 
 export default App;

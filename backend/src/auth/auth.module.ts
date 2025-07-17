@@ -8,6 +8,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
 import { LocalStrategy } from "./strategies/local.strategy";
 import { UsersModule } from "../users/users.module";
 
+// AuthModule handles authentication logic, strategies, and routes
 @Module({
   imports: [
     UsersModule,

@@ -1,6 +1,6 @@
 # Task Manager Setup Guide
 
-## Quick Start (Docker - Recommended)
+## Quick Start (Docker)
 
 ### 1. **Prerequisites**
 
@@ -10,7 +10,7 @@
 ### 2. **Clone and Run**
 
 ```bash
-# Clone the repository (if not already done)
+# Clone the repository
 git clone <your-repo-url>
 cd TaskManager
 
@@ -32,7 +32,7 @@ docker-compose ps
 1. Go to http://localhost:3000
 2. Click "Create a new account"
 3. Fill in your details and register
-4. Start creating tasks!
+4. Start creating tasks
 
 ## Manual Setup (Local Development)
 
@@ -200,39 +200,3 @@ curl -X POST http://localhost:3001/api/tasks \
   -H "Content-Type: application/json" \
   -d '{"title":"Test Task","description":"Test description"}'
 ```
-
-## Next Steps After Setup
-
-1. **Explore the Application**
-
-   - Create your first account
-   - Add some test tasks
-   - Try the filtering and sorting features
-
-2. **Review the Code**
-
-   - Check the backend architecture in `backend/src/`
-   - Explore the frontend components in `frontend/src/`
-   - Review the API documentation in README.md
-
-3. **Customize**
-
-   - Modify the UI colors in `frontend/tailwind.config.js`
-   - Add new features to the task management
-   - Extend the API with new endpoints
-
-4. **Deploy**
-   - Set up production environment variables
-   - Configure a production database
-   - Deploy to your preferred hosting platform
-
-## Need Help?
-
-If you encounter any issues:
-
-1. Check the troubleshooting section above
-2. Review the logs: `docker-compose logs`
-3. Ensure all environment variables are set correctly
-4. Verify all dependencies are installed
-
-The application should now be fully functional! 🎉

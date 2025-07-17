@@ -1,54 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Task } from "../types";
 
+// Props for TaskForm component
 interface TaskFormProps {
-  onSubmit: (data: {
-    title: string;
-    description?: string;
-    dueDate?: string;
-    priority: string;
-  }) => void;
+  initialTask?: Partial<Task>;
+  onSubmit: (task: Partial<Task>) => void;
   onCancel: () => void;
-  loading?: boolean;
 }
 
+// TaskForm provides a form for creating or editing a task
 const TaskForm: React.FC<TaskFormProps> = ({
+  initialTask = {},
   onSubmit,
   onCancel,
-  loading = false,
 }) => {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    dueDate: "",
-    priority: "low",
-  });
+  // Local state for form fields
+  const [title, setTitle] = useState(initialTask.title || "");
+  const [description, setDescription] = useState(initialTask.description || "");
+  const [dueDate, setDueDate] = useState(
+    initialTask.dueDate ? initialTask.dueDate.slice(0, 10) : ""
+  );
+  const [priority, setPriority] = useState(initialTask.priority || "low");
   const [error, setError] = useState("");
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  // Update form fields if initialTask changes (for editing)
+  useEffect(() => {
+    setTitle(initialTask.title || "");
+    setDescription(initialTask.description || "");
+    setDueDate(initialTask.dueDate ? initialTask.dueDate.slice(0, 10) : "");
+    setPriority(initialTask.priority || "low");
+  }, [initialTask]);
 
+  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim() || !formData.dueDate) {
-      setError("Due date is required.");
+    if (!title.trim()) {
+      setError("Title is required");
       return;
     }
     setError("");
     onSubmit({
-      title: formData.title.trim(),
-      description: formData.description.trim() || undefined,
-      dueDate: formData.dueDate,
-      priority: formData.priority,
+      ...initialTask,
+      title: title.trim(),
+      description: description.trim(),
+      dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+      priority,
     });
-    setFormData({ title: "", description: "", dueDate: "", priority: "low" });
   };
 
   return (
@@ -72,8 +69,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 type="text"
                 id="title"
                 name="title"
-                value={formData.title}
-                onChange={handleChange}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Enter task title"
@@ -90,8 +87,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
               <textarea
                 id="description"
                 name="description"
-                value={formData.description}
-                onChange={handleChange}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 rows={3}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Enter task description"
@@ -109,8 +106,8 @@ const TaskForm: React.FC<TaskFormProps> = ({
                 type="date"
                 id="dueDate"
                 name="dueDate"
-                value={formData.dueDate}
-                onChange={handleChange}
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               />
@@ -126,8 +123,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
               <select
                 id="priority"
                 name="priority"
-                value={formData.priority}
-                onChange={handleChange}
+                value={priority}
+                onChange={(e) =>
+                  setPriority(e.target.value as "low" | "medium" | "high")
+                }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 required
               >
@@ -141,17 +140,15 @@ const TaskForm: React.FC<TaskFormProps> = ({
               <button
                 type="button"
                 onClick={onCancel}
-                disabled={loading}
-                className="px-4 py-2 bg-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50"
+                className="px-4 py-2 bg-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={loading || !formData.title.trim()}
-                className="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                className="px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
               >
-                {loading ? "Creating..." : "Create Task"}
+                Save
               </button>
             </div>
           </form>

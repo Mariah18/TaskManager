@@ -2,6 +2,7 @@ import React from "react";
 import TaskItem from "./TaskItem";
 import { Task, Pagination } from "../types";
 
+// Props for TaskList component
 interface TaskListProps {
   tasks: Task[];
   pagination?: Pagination;
@@ -12,6 +13,7 @@ interface TaskListProps {
   loading?: boolean;
 }
 
+// TaskList displays a list of tasks using TaskItem components
 const TaskList: React.FC<TaskListProps> = ({
   tasks,
   pagination,

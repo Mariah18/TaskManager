@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { tasksApi } from "../services/api";
 import TaskList from "../components/TaskList";
@@ -8,93 +8,125 @@ import { GetTasksParams, Task } from "../types";
 import { toast } from "react-toastify";
 import ConfirmModal from "../components/ConfirmModal";
 
+// Dashboard page displays the user's tasks and provides controls for managing them
 const Dashboard: React.FC = () => {
+  // State for tasks, filters, and UI
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [filters, setFilters] = useState<GetTasksParams>({
     page: 1,
     limit: 10,
     sortBy: "createdAt",
   });
-  const [showTaskForm, setShowTaskForm] = useState(false);
   const queryClient = useQueryClient();
-  const [deleteTaskId, setDeleteTaskId] = useState<string | null>(null);
 
-  const {
-    data: tasksData,
-    isLoading,
-    error,
-  } = useQuery(["tasks", filters], () => tasksApi.getTasks(filters));
+  // Fetch all tasks for announcements (ignore pagination/filters)
+  const [allTasks, setAllTasks] = useState<Task[]>([]);
+  const [allTasksLoading, setAllTasksLoading] = useState(false);
 
-  const createTaskMutation = useMutation(tasksApi.createTask, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(["tasks"]);
-      queryClient.invalidateQueries(["allTasks"]);
-      setShowTaskForm(false);
-      toast.success("Task created successfully!");
-    },
-    onError: () => {
-      toast.error("Failed to create task.");
-    },
-  });
+  useEffect(() => {
+    setAllTasksLoading(true);
+    tasksApi
+      .getTasks({ limit: 1000 })
+      .then((res) => setAllTasks(res.data.tasks))
+      .finally(() => setAllTasksLoading(false));
+  }, []);
 
-  const updateTaskMutation = useMutation(
-    ({ id, data }: { id: string; data: any }) => tasksApi.updateTask(id, data),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["tasks"]);
-        queryClient.invalidateQueries(["allTasks"]);
+  // Fetch tasks from the API when filters change
+  useEffect(() => {
+    setLoading(true);
+    tasksApi
+      .getTasks(filters)
+      .then((res) => setTasks(res.data.tasks))
+      .finally(() => setLoading(false));
+  }, [filters]);
+
+  // Handle creating a new task
+  const handleCreate = (taskData: { title: string; description?: string }) => {
+    setLoading(true);
+    tasksApi
+      .createTask(taskData)
+      .then((res) => {
+        const newTask = res.data;
+        setTasks((prev) => [newTask, ...prev]);
+        setShowForm(false);
+        toast.success("Task created successfully!");
+      })
+      .catch(() => toast.error("Failed to create task."))
+      .finally(() => setLoading(false));
+  };
+
+  // Handle editing an existing task
+  const handleEdit = (task: Task) => {
+    setEditingTask(task);
+    setShowForm(true);
+  };
+
+  // Handle updating a task
+  const handleUpdate = (id: string, data: any) => {
+    if (!editingTask) return;
+    setLoading(true);
+    tasksApi
+      .updateTask(id, data)
+      .then((res) => {
+        const updated = res.data;
+        setTasks((prev) =>
+          prev.map((t) => (t.id === updated.id ? updated : t))
+        );
         toast.success("Task updated successfully!");
-      },
-      onError: () => {
-        toast.error("Failed to update task.");
-      },
-    }
-  );
-
-  const deleteTaskMutation = useMutation(tasksApi.deleteTask, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(["tasks"]);
-      queryClient.invalidateQueries(["allTasks"]);
-      toast.success("Task deleted successfully!");
-    },
-    onError: () => {
-      toast.error("Failed to delete task.");
-    },
-  });
-
-  const toggleCompleteMutation = useMutation(tasksApi.toggleComplete, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(["tasks"]);
-      queryClient.invalidateQueries(["allTasks"]);
-      toast.success("Task completion status updated!");
-    },
-    onError: () => {
-      toast.error("Failed to update completion status.");
-    },
-  });
-
-  const handleCreateTask = (taskData: {
-    title: string;
-    description?: string;
-  }) => {
-    createTaskMutation.mutate(taskData);
+      })
+      .catch(() => toast.error("Failed to update task."))
+      .finally(() => {
+        setShowForm(false);
+        setEditingTask(null);
+        setLoading(false);
+      });
   };
 
-  const handleUpdateTask = (id: string, data: any) => {
-    updateTaskMutation.mutate({ id, data });
+  // Handle deleting a task (with confirmation)
+  const handleDelete = (id: string) => {
+    setTaskToDelete(tasks.find((t) => t.id === id) || null);
+    setShowConfirm(true);
   };
 
-  const handleDeleteTask = (id: string) => {
-    setDeleteTaskId(id);
+  const confirmDelete = () => {
+    if (!taskToDelete) return;
+    setLoading(true);
+    tasksApi
+      .deleteTask(taskToDelete.id)
+      .then(() => {
+        setTasks((prev) => prev.filter((t) => t.id !== taskToDelete.id));
+        toast.success("Task deleted successfully!");
+      })
+      .catch(() => toast.error("Failed to delete task."))
+      .finally(() => {
+        setShowConfirm(false);
+        setTaskToDelete(null);
+        setLoading(false);
+      });
   };
 
+  // Handle toggling task completion
   const handleToggleComplete = (id: string) => {
-    toggleCompleteMutation.mutate(id);
+    setLoading(true);
+    tasksApi
+      .toggleComplete(id)
+      .then((res) => {
+        const updated = res.data;
+        setTasks((prev) =>
+          prev.map((t) => (t.id === updated.id ? updated : t))
+        );
+        toast.success("Task completion status updated!");
+      })
+      .catch(() => toast.error("Failed to update completion status."))
+      .finally(() => setLoading(false));
   };
 
-  const handlePageChange = (page: number) => {
-    setFilters((prev) => ({ ...prev, page }));
-  };
-
+  // Handle filter changes
   const handleFiltersChange = (newFilters: Partial<GetTasksParams>) => {
     setFilters((prev) => ({ ...prev, ...newFilters, page: 1 }));
   };
@@ -118,16 +150,7 @@ const Dashboard: React.FC = () => {
     return date < new Date(now.getFullYear(), now.getMonth(), now.getDate());
   };
 
-  // Fetch all tasks for announcements (ignore pagination/filters)
-  const { data: allTasksData, isLoading: isLoadingAllTasks } = useQuery(
-    ["allTasks"],
-    () => tasksApi.getTasks({ limit: 1000 })
-  );
-
-  // Use paginated/filtered tasks for main display
-  const allTasks = allTasksData?.data?.tasks || [];
-  const paginatedTasks = tasksData?.data?.tasks || [];
-
+  // Use allTasks for announcements
   const dueTodayTasks = allTasks.filter(
     (t: Task) => t.dueDate && isToday(t.dueDate)
   );
@@ -135,26 +158,14 @@ const Dashboard: React.FC = () => {
     (t: Task) => t.dueDate && isOverdue(t.dueDate) && !t.completed
   );
 
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-        Error loading tasks. Please try again.
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <ConfirmModal
-        open={!!deleteTaskId}
-        onClose={() => setDeleteTaskId(null)}
-        onConfirm={() => {
-          if (deleteTaskId) deleteTaskMutation.mutate(deleteTaskId);
-        }}
+        isOpen={!!taskToDelete}
+        onCancel={() => setShowConfirm(false)}
+        onConfirm={confirmDelete}
         title="Delete Task"
-        description="Are you sure you want to delete this task? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
+        message="Are you sure you want to delete this task? This action cannot be undone."
       />
       {/* Announcements */}
       {dueTodayTasks.length > 0 && (
@@ -204,7 +215,10 @@ const Dashboard: React.FC = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">My Tasks</h1>
         <button
-          onClick={() => setShowTaskForm(true)}
+          onClick={() => {
+            setShowForm(true);
+            setEditingTask(null);
+          }}
           className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
         >
           Add New Task
@@ -215,32 +229,38 @@ const Dashboard: React.FC = () => {
       <TaskFilters filters={filters} onFiltersChange={handleFiltersChange} />
 
       {/* Task List */}
-      {isLoading ? (
+      {loading ? (
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
         </div>
       ) : (
         <TaskList
-          tasks={paginatedTasks}
-          pagination={tasksData?.data?.pagination}
-          onUpdateTask={handleUpdateTask}
-          onDeleteTask={handleDeleteTask}
+          tasks={tasks}
+          onUpdateTask={handleUpdate}
+          onDeleteTask={handleDelete}
           onToggleComplete={handleToggleComplete}
-          onPageChange={handlePageChange}
-          loading={
-            updateTaskMutation.isLoading ||
-            deleteTaskMutation.isLoading ||
-            toggleCompleteMutation.isLoading
+          onPageChange={(page: number) =>
+            setFilters((prev) => ({ ...prev, page }))
           }
+          loading={loading}
         />
       )}
 
       {/* Task Form Modal */}
-      {showTaskForm && (
+      {showForm && (
         <TaskForm
-          onSubmit={handleCreateTask}
-          onCancel={() => setShowTaskForm(false)}
-          loading={createTaskMutation.isLoading}
+          initialTask={editingTask || {}}
+          onSubmit={(task: Partial<Task>) => {
+            if (editingTask) {
+              handleUpdate(editingTask.id, task);
+            } else {
+              handleCreate(task as { title: string; description?: string });
+            }
+          }}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingTask(null);
+          }}
         />
       )}
     </div>

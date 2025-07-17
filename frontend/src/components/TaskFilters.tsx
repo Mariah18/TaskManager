@@ -1,11 +1,13 @@
 import React from "react";
 import { GetTasksParams } from "../types";
 
+// Props for TaskFilters component
 interface TaskFiltersProps {
   filters: GetTasksParams;
   onFiltersChange: (filters: Partial<GetTasksParams>) => void;
 }
 
+// TaskFilters provides UI controls for searching, filtering, and sorting tasks
 const TaskFilters: React.FC<TaskFiltersProps> = ({
   filters,
   onFiltersChange,

@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App";
 
+// Set up React Query for server state management
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -14,10 +15,12 @@ const queryClient = new QueryClient({
   },
 });
 
+// Create the root element for the React app
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 
+// Render the application with providers for React Query and routing
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>

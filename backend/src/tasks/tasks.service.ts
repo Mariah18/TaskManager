@@ -8,10 +8,12 @@ import { CreateTaskDto } from "./dto/create-task.dto";
 import { UpdateTaskDto } from "./dto/update-task.dto";
 import { GetTasksDto } from "./dto/get-tasks.dto";
 
+// Service responsible for all business logic related to tasks
 @Injectable()
 export class TasksService {
   constructor(private prisma: PrismaService) {}
 
+  // Create a new task for a user
   async create(createTaskDto: CreateTaskDto, userId: string) {
     const now = new Date();
     return this.prisma.task.create({
@@ -24,6 +26,7 @@ export class TasksService {
     });
   }
 
+  // Get all tasks for a user, with support for filtering, sorting, and pagination
   async findAll(getTasksDto: GetTasksDto, userId: string) {
     const {
       page = 1,
@@ -110,6 +113,7 @@ export class TasksService {
     };
   }
 
+  // Get a single task by ID for a user
   async findOne(id: string, userId: string) {
     const task = await this.prisma.task.findFirst({
       where: {
@@ -127,6 +131,7 @@ export class TasksService {
     return task;
   }
 
+  // Update a task by ID for a user
   async update(id: string, updateTaskDto: UpdateTaskDto, userId: string) {
     const task = await this.prisma.task.findUnique({ where: { id } });
     if (!task) throw new NotFoundException();
@@ -137,6 +142,7 @@ export class TasksService {
     });
   }
 
+  // Delete a task by ID for a user
   async remove(id: string, userId: string) {
     const task = await this.prisma.task.findFirst({
       where: { id, deletedAt: null },
@@ -146,6 +152,7 @@ export class TasksService {
     return this.prisma.task.delete({ where: { id } });
   }
 
+  // Toggle the completion status of a task
   async toggleComplete(id: string, userId: string) {
     const task = await this.prisma.task.findFirst({
       where: { id, deletedAt: null },

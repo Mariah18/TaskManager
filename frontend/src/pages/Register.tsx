@@ -1,19 +1,29 @@
+// This page provides the registration form for new users.
+// It manages form state, validation, error handling, and redirects on successful registration.
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
+// Register page component
 const Register: React.FC = () => {
+  // State for form fields
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     confirmPassword: "",
     name: "",
   });
+  // State for error messages
   const [error, setError] = useState("");
+  // State for loading indicator
   const [loading, setLoading] = useState(false);
+  // Auth context for register function
   const { register } = useAuth();
+  // React Router navigation
   const navigate = useNavigate();
 
+  // Handle input changes for form fields
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -21,36 +31,39 @@ const Register: React.FC = () => {
     });
   };
 
+  // Handle form submission for registration
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
+    // Validate password match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-
+    // Validate password length
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters long");
       return;
     }
-
     setLoading(true);
-
     try {
+      // Attempt registration with provided credentials
       await register(
         formData.email,
         formData.password,
         formData.name || undefined
       );
+      // Redirect to dashboard on success
       navigate("/dashboard");
     } catch (err: any) {
+      // Show error message if registration fails
       setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
   };
 
+  // Render registration form UI
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -60,6 +73,7 @@ const Register: React.FC = () => {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{" "}
+            {/* Link to login page */}
             <Link
               to="/login"
               className="font-medium text-primary-600 hover:text-primary-500"
@@ -68,14 +82,14 @@ const Register: React.FC = () => {
             </Link>
           </p>
         </div>
-
+        {/* Registration form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {/* Error message display */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
               {error}
             </div>
           )}
-
           <div className="space-y-4">
             <div>
               <label
@@ -95,7 +109,6 @@ const Register: React.FC = () => {
                 placeholder="Enter your full name"
               />
             </div>
-
             <div>
               <label
                 htmlFor="email"
@@ -115,7 +128,6 @@ const Register: React.FC = () => {
                 placeholder="Enter your email"
               />
             </div>
-
             <div>
               <label
                 htmlFor="password"
@@ -135,7 +147,6 @@ const Register: React.FC = () => {
                 placeholder="Enter your password"
               />
             </div>
-
             <div>
               <label
                 htmlFor="confirmPassword"
@@ -156,7 +167,6 @@ const Register: React.FC = () => {
               />
             </div>
           </div>
-
           <div>
             <button
               type="submit"
